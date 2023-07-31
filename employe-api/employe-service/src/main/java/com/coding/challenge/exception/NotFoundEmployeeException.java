@@ -6,4 +6,14 @@ package com.coding.challenge.exception;
  * @author dguzman.
  */
 public class NotFoundEmployeeException extends EmployeeException {
+  public NotFoundEmployeeException() {
+  }
+
+  public NotFoundEmployeeException(String message) {
+    super(message);
+  }
+
+  public NotFoundEmployeeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

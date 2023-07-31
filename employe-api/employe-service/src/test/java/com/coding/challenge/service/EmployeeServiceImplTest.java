@@ -2,6 +2,7 @@ package com.coding.challenge.service;
 
 import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.repository.EmployeeRepository;
+import com.coding.challenge.database.repository.HobbyRepository;
 import com.coding.challenge.exception.EmployeeException;
 import com.coding.challenge.exception.ValidationEmployeeException;
 import com.coding.challenge.model.Employee;
@@ -36,11 +37,14 @@ class EmployeeServiceImplTest {
   @Mock
   private EmployeeRepository employeeRepository;
 
+  @Mock
+  private HobbyRepository hobbyRepository;
+
   private EmployeeService testee;
 
   @BeforeEach
   void setUp() {
-    testee = new EmployeeServiceImpl(employeeRepository);
+    testee = new EmployeeServiceImpl(employeeRepository, hobbyRepository);
   }
 
   @Test
@@ -55,7 +59,7 @@ class EmployeeServiceImplTest {
   @Test
   void createInvalidEmployeeNoNameTest() {
     Employee requestEmployee = new Employee();
-    requestEmployee.setEmail("test@test.gmail");
+    requestEmployee.setEmail(TEST_EMAIL);
     Exception exception = assertThrows(ValidationEmployeeException.class,
         () -> testee.create(requestEmployee));
     String expected = "Empty/Null full name for the employee when creating it.";
@@ -63,9 +67,21 @@ class EmployeeServiceImplTest {
   }
 
   @Test
+  void createInvalidEmployeeDuplicatedEmailTest() {
+    Employee requestEmployee = new Employee();
+    requestEmployee.setEmail(TEST_EMAIL);
+    EmployeeEntity duplicatedEmail = mock(EmployeeEntity.class);
+    doReturn(List.of(duplicatedEmail)).when(employeeRepository).findByEmail(TEST_EMAIL);
+    Exception exception = assertThrows(ValidationEmployeeException.class,
+        () -> testee.create(requestEmployee));
+    String expected = "Email is already in use.";
+    assertEquals(expected, exception.getMessage());
+  }
+
+  @Test
   void createInvalidEmployeeNoBirthdayTest() {
     Employee requestEmployee = new Employee();
-    requestEmployee.setEmail("test@test.gmail");
+    requestEmployee.setEmail(TEST_EMAIL);
     requestEmployee.setFullName("Test");
     Exception exception = assertThrows(ValidationEmployeeException.class,
         () -> testee.create(requestEmployee));
@@ -114,6 +130,20 @@ class EmployeeServiceImplTest {
     Exception exception = assertThrows(ValidationEmployeeException.class,
         () -> testee.update(requestEmployee));
     String expected = "Empty/Null full name for the employee when creating it.";
+    assertEquals(expected, exception.getMessage());
+  }
+
+  @Test
+  void updateEmployeeDuplicatedEmailTest() {
+    Employee requestEmployee = mock(Employee.class);
+    doReturn(TEST_ID).when(requestEmployee).getUuid();
+    doReturn(TEST_EMAIL).when(requestEmployee).getEmail();
+    EmployeeEntity originalEmail = mock(EmployeeEntity.class);
+    EmployeeEntity duplicatedEmail = mock(EmployeeEntity.class);
+    doReturn(List.of(originalEmail, duplicatedEmail)).when(employeeRepository).findByEmail(TEST_EMAIL);
+    Exception exception = assertThrows(ValidationEmployeeException.class,
+        () -> testee.update(requestEmployee));
+    String expected = "Email is already in use.";
     assertEquals(expected, exception.getMessage());
   }
 

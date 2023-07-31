@@ -3,7 +3,8 @@ package com.coding.challenge.service;
 import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.entity.HobbyEntity;
 import com.coding.challenge.database.repository.EmployeeRepository;
-import com.coding.challenge.exception.EmployeeException;
+import com.coding.challenge.database.repository.HobbyRepository;
+import com.coding.challenge.exception.NotFoundEmployeeException;
 import com.coding.challenge.exception.ValidationEmployeeException;
 import com.coding.challenge.model.Employee;
 import com.coding.challenge.model.Hobby;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 @Service
@@ -24,13 +24,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private EmployeeRepository employeeRepository;
 
-  public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+  private HobbyRepository hobbyRepository;
+
+  public EmployeeServiceImpl(EmployeeRepository employeeRepository, HobbyRepository hobbyRepository) {
     this.employeeRepository = employeeRepository;
+    this.hobbyRepository = hobbyRepository;
   }
 
   @Override
   public Employee create(@Nonnull Employee employee) {
-    validateEmployee(employee);
+    validateEmployee(employee, EmployeeOperation.CREATE);
     EmployeeEntity createdEmployeeEntity = employeeRepository.save(convertToEmployeeEntity(employee));
 
     return convertToEmployeeModel(createdEmployeeEntity);
@@ -48,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Override
   public Employee getById(@Nonnull String id) {
     EmployeeEntity employee = employeeRepository.findById(id).orElseThrow(
-        () -> new EmployeeException("Employee not found in database"));
+        () -> new NotFoundEmployeeException("Employee not found in database"));
     return convertToEmployeeModel(employee);
   }
 
@@ -70,18 +73,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     employeeRepository.delete(convertToEmployeeEntity(employee));
   }
 
-  private static EmployeeEntity convertToEmployeeEntity(Employee employee) {
+  private EmployeeEntity convertToEmployeeEntity(Employee employee) {
     EmployeeEntity employeeEntity = new EmployeeEntity();
     employeeEntity.setUuid(employee.getUuid());
     employeeEntity.setFullName(employee.getFullName());
     employeeEntity.setEmail(employee.getEmail());
     employeeEntity.setBirthday(employee.getBirthday());
-    Set<HobbyEntity> hobbyEntityList = new TreeSet<>();
+    Set<HobbyEntity> hobbyEntityList = new HashSet<>();
     for (Hobby hobby : employee.getHobbies()) {
-      HobbyEntity hobbyEntity = new HobbyEntity();
-      hobbyEntity.setId(hobby.getId());
-      hobbyEntity.setName(hobby.getName());
-      hobbyEntityList.add(hobbyEntity);
+      if (!Strings.isBlank(hobby.getName())) {
+        HobbyEntity hobbyEntity = hobbyRepository.findByName(hobby.getName());
+        if (hobbyEntity == null) {
+          HobbyEntity hobbyEntityToCreate = new HobbyEntity();
+          hobbyEntityToCreate.setName(hobby.getName());
+          hobbyEntityList.add(hobbyEntityToCreate);
+          continue;
+        }
+        hobbyEntityList.add(hobbyEntity);
+      }
     }
 
     employeeEntity.setHobbies(hobbyEntityList);
@@ -106,18 +115,26 @@ public class EmployeeServiceImpl implements EmployeeService {
     return employeeModel;
   }
 
-  private static void validateExistingEmployee(@Nonnull Employee employee) {
+  private void validateExistingEmployee(@Nonnull Employee employee) {
     if (Strings.isBlank(employee.getUuid())) {
       throw new ValidationEmployeeException("Invalid UUID on employee: " + employee.getUuid());
     }
 
-    validateEmployee(employee);
+    validateEmployee(employee, EmployeeOperation.UPDATE);
   }
 
-  private static void validateEmployee(@Nonnull Employee employee) {
+  private void validateEmployee(@Nonnull Employee employee,
+                                EmployeeOperation operation) {
     if (Strings.isBlank(employee.getEmail())) {
       throw new ValidationEmployeeException("Empty/Null email for the employee when creating it.");
     }
+
+    List<EmployeeEntity> employeeWithSameEmails = employeeRepository.findByEmail(employee.getEmail());
+
+    if (employeeWithSameEmails != null && isEmailAlreadyUsed(operation, employeeWithSameEmails)) {
+      throw new ValidationEmployeeException("Email is already in use.");
+    }
+
 
     if (Strings.isBlank(employee.getFullName())) {
       throw new ValidationEmployeeException("Empty/Null full name for the employee when creating it.");
@@ -126,6 +143,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     if (employee.getBirthday() == null) {
       throw new ValidationEmployeeException("Not valid null birthday when creaing the employee");
     }
+  }
+
+  private static boolean isEmailAlreadyUsed(EmployeeOperation operation, List<EmployeeEntity> employeeWithSameEmails) {
+    if (operation == EmployeeOperation.CREATE && !employeeWithSameEmails.isEmpty()) {
+      return true;
+    }
+
+    if (operation == EmployeeOperation.UPDATE && employeeWithSameEmails.size() > 1) {
+      return true;
+    }
+    return false;
   }
 
 }

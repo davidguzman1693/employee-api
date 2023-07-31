@@ -21,10 +21,14 @@ import java.util.Set;
 @Entity
 @Table(
     name = "EMPLOYEE",
-    uniqueConstraints = @UniqueConstraint(
+    uniqueConstraints = {@UniqueConstraint(
         name = "UK_EMPLOYEE",
         columnNames = "UUID"
-    )
+    ),
+        @UniqueConstraint(
+            name = "UK_EMAIL",
+            columnNames = "EMAIL"
+        )}
 )
 @Getter
 @Setter
@@ -49,10 +53,10 @@ public class EmployeeEntity {
   @JoinTable(
       name = "EMPLOYEE_HOBBY",
       joinColumns = {
-          @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "UUID", nullable = false, updatable = false)
+          @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "UUID", nullable = false)
       },
       inverseJoinColumns = {
-          @JoinColumn(name = "HOBBY_ID", referencedColumnName = "ID", nullable = false, updatable = false)
+          @JoinColumn(name = "HOBBY_ID", referencedColumnName = "ID", nullable = false)
       }
   )
   private Set<HobbyEntity> hobbies;
