@@ -1,0 +1,10 @@
+kafka-producer-config:
+  key-serializer-class: org.apache.kafka.common.serialization.LongSerializer #Long variable as key
+  value-serializer-class: io.confluent.kafka.serializers.KafkaAvroSerializer
+  compression-type: snappy #Library from Google
+  acks: all #Acknowledge from all replicas for resilience purposes
+  batch-size: 16384
+  batch-size-boost-factor: 100
+  linger-ms: 5 #Delay on producer
+  request-timeout-ms: 60000 #Timeout error after this time
+  retry-count: 5 #In case of error retry up to 5 times
