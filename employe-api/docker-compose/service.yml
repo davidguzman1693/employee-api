@@ -1,13 +1,13 @@
 version: '3.7'
 services:
   employee-api:
-    image: ${GROUP_ID}/employee.api:${SERVICE_VERSION:-latest}
+    image: ${GROUP_ID}/employee.api:${SERVICE_VERSION}
     ports:
-      - "5005:5005"
+      - "5005:9999"
     volumes:
       - "./docker-logs:/workspace/employee-api/logs"
     user: root
-    entrypoint: ["check-config-server-started.sh"]
+    #entrypoint: ["check-config-server-started.sh"]
     depends_on:
       - kafka-broker-1
       - kafka-broker-2
