@@ -19,6 +19,20 @@
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.coding.challenge</groupId>
+      <artifactId>kafka-admin</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.coding.challenge</groupId>
+      <artifactId>kafka-producer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.coding.challenge</groupId>
+      <artifactId>kafka-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -54,4 +68,29 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <!-- Create an image -->
+        <configuration>
+          <image>
+            <name>${project.groupId}/employee.api:${project.version}</name>
+          </image>
+        </configuration>
+        <executions>
+          <!-- when to create the image -->
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>
+                build-image
+              </goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

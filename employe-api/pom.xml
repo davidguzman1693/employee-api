@@ -70,7 +70,11 @@
         <artifactId>kafka-admin</artifactId>
         <version>${project.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.coding.challenge</groupId>
+        <artifactId>kafka-producer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>

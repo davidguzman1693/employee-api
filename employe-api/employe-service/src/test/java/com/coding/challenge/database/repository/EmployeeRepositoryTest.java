@@ -2,8 +2,10 @@ package com.coding.challenge.database.repository;
 
 import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.entity.HobbyEntity;
+import com.coding.challenge.init.StreamInitializer;
 import com.coding.challenge.model.Hobby;
 import org.apache.tomcat.jni.Local;
+import org.hibernate.dialect.Database;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +15,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;

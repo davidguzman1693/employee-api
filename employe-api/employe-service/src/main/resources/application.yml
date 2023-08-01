@@ -14,3 +14,32 @@ spring:
     jdbc:
       initialize-schema: always
       schema: classpath:database/schema.sql
+
+retry-config:
+  initial-interval-ms: 100
+  max-interval-ms: 10000
+  multiplier: 2.0
+  maxAttempts: 3
+  sleep-time-ms: 2000
+
+kafka-config:
+  bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+  schema-registry-url-key: schema.registry.url
+  schema-registry-url-alt: http://schema-registry
+  schema-registry-url: http://localhost:8081
+  topic-name: employee-topic
+  topic-names-to-create:
+    - employee-topic
+  num-of-partitions: 3
+  replication-factor: 1
+
+kafka-producer-config:
+  key-serializer-class: org.apache.kafka.common.serialization.StringSerializer #String variable as key
+  value-serializer-class: io.confluent.kafka.serializers.KafkaAvroSerializer
+  compression-type: snappy #Library from Google
+  acks: all #Acknowledge from all replicas for resilience purposes
+  batch-size: 16384
+  batch-size-boost-factor: 100
+  linger-ms: 5 #Delay on producer
+  request-timeout-ms: 60000 #Timeout error after this time
+  retry-count: 5 #In case of error retry up to 5 times

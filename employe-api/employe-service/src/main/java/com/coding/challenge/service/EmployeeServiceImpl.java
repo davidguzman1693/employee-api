@@ -1,14 +1,19 @@
 package com.coding.challenge.service;
 
+import com.coding.challenge.config.KafkaConfigData;
 import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.entity.HobbyEntity;
 import com.coding.challenge.database.repository.EmployeeRepository;
 import com.coding.challenge.database.repository.HobbyRepository;
 import com.coding.challenge.exception.NotFoundEmployeeException;
 import com.coding.challenge.exception.ValidationEmployeeException;
+import com.coding.challenge.init.StreamInitializer;
+import com.coding.challenge.kafka.avro.model.EmployeeAvroModel;
 import com.coding.challenge.model.Employee;
 import com.coding.challenge.model.Hobby;
+import com.coding.challenge.transformer.AvroTransformer;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -26,9 +31,25 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private HobbyRepository hobbyRepository;
 
-  public EmployeeServiceImpl(EmployeeRepository employeeRepository, HobbyRepository hobbyRepository) {
+  private final AvroTransformer avroTransformer;
+
+  private final EmployeeKafkaProducer employeeKafkaProducer;
+
+  private final KafkaConfigData kafkaConfigData;
+
+  @Autowired
+  private StreamInitializer streamInitializer;
+
+  public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+                             HobbyRepository hobbyRepository,
+                             AvroTransformer avroTransformer,
+                             EmployeeKafkaProducer employeeKafkaProducer,
+                             KafkaConfigData kafkaConfigData) {
     this.employeeRepository = employeeRepository;
     this.hobbyRepository = hobbyRepository;
+    this.avroTransformer = avroTransformer;
+    this.employeeKafkaProducer = employeeKafkaProducer;
+    this.kafkaConfigData = kafkaConfigData;
   }
 
   @Override
@@ -36,7 +57,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     validateEmployee(employee, EmployeeOperation.CREATE);
     EmployeeEntity createdEmployeeEntity = employeeRepository.save(convertToEmployeeEntity(employee));
 
-    return convertToEmployeeModel(createdEmployeeEntity);
+    Employee createdEmployee = sendEmployeeToKafka(createdEmployeeEntity);
+
+    return createdEmployee;
   }
 
   @Nullable
@@ -154,6 +177,14 @@ public class EmployeeServiceImpl implements EmployeeService {
       return true;
     }
     return false;
+  }
+
+  private Employee sendEmployeeToKafka(EmployeeEntity employee) {
+    Employee createdEmployee = convertToEmployeeModel(employee);
+    EmployeeAvroModel createdEmployeeAvroModel = avroTransformer.getAvroModelFromEmployee(createdEmployee);
+    employeeKafkaProducer.send(kafkaConfigData.getTopicName(),
+        createdEmployeeAvroModel.getUuid(), createdEmployeeAvroModel);
+    return createdEmployee;
   }
 
 }

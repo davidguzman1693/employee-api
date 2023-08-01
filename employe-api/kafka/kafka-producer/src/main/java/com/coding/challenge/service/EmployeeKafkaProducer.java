@@ -20,21 +20,21 @@ import java.io.Serializable;
  * @author dguzman.
  */
 @Service
-public class EmployeeKafkaProducer implements KafkaProducer<Long, EmployeeAvroModel> {
+public class EmployeeKafkaProducer implements KafkaProducer<String, EmployeeAvroModel> {
 
   private static final Logger LOG = LoggerFactory.getLogger(EmployeeKafkaProducer.class);
 
-  private KafkaTemplate<Long, EmployeeAvroModel> kafkaTemplate;
+  private KafkaTemplate<String, EmployeeAvroModel> kafkaTemplate;
 
-  public EmployeeKafkaProducer(KafkaTemplate<Long, EmployeeAvroModel> kafkaTemplate) {
+  public EmployeeKafkaProducer(KafkaTemplate<String, EmployeeAvroModel> kafkaTemplate) {
     this.kafkaTemplate = kafkaTemplate;
   }
 
   @Override
-  public void send(String topicName, Long key, EmployeeAvroModel message) {
+  public void send(String topicName, String key, EmployeeAvroModel message) {
     LOG.info("Sending message {} to topic {}", message, topicName);
     //ListenableFuture register callback methods for handling events when response returns.
-    ListenableFuture<SendResult<Long, EmployeeAvroModel>> kafkaResultFuture = kafkaTemplate.send(topicName, key, message);
+    ListenableFuture<SendResult<String, EmployeeAvroModel>> kafkaResultFuture = kafkaTemplate.send(topicName, key, message);
     addCallback(topicName, message, kafkaResultFuture);
   }
 
@@ -48,15 +48,15 @@ public class EmployeeKafkaProducer implements KafkaProducer<Long, EmployeeAvroMo
 
   private static void addCallback(String topicName,
                                   EmployeeAvroModel message,
-                                  ListenableFuture<SendResult<Long, EmployeeAvroModel>> kafkaResultFuture) {
-    kafkaResultFuture.addCallback(new ListenableFutureCallback<SendResult<Long, EmployeeAvroModel>>() {
+                                  ListenableFuture<SendResult<String, EmployeeAvroModel>> kafkaResultFuture) {
+    kafkaResultFuture.addCallback(new ListenableFutureCallback<SendResult<String, EmployeeAvroModel>>() {
       @Override
       public void onFailure(Throwable throwable) {
         LOG.error("Error while sending message {} to topic {}", message, topicName, throwable);
       }
 
       @Override
-      public void onSuccess(SendResult<Long, EmployeeAvroModel> result) {
+      public void onSuccess(SendResult<String, EmployeeAvroModel> result) {
         RecordMetadata metadata = result.getRecordMetadata();
         LOG.info("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}",
             metadata.topic(),

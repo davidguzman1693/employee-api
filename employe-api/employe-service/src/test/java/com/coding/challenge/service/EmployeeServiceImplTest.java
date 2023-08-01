@@ -1,11 +1,14 @@
 package com.coding.challenge.service;
 
+import com.coding.challenge.config.KafkaConfigData;
 import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.repository.EmployeeRepository;
 import com.coding.challenge.database.repository.HobbyRepository;
 import com.coding.challenge.exception.EmployeeException;
 import com.coding.challenge.exception.ValidationEmployeeException;
+import com.coding.challenge.kafka.avro.model.EmployeeAvroModel;
 import com.coding.challenge.model.Employee;
+import com.coding.challenge.transformer.AvroTransformer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,11 +43,21 @@ class EmployeeServiceImplTest {
   @Mock
   private HobbyRepository hobbyRepository;
 
+  @Mock
+  private AvroTransformer avroTransformer;
+
+  @Mock
+  private EmployeeKafkaProducer employeeKafkaProducer;
+
+  @Mock
+  private KafkaConfigData kafkaConfigData;
+
   private EmployeeService testee;
 
   @BeforeEach
   void setUp() {
-    testee = new EmployeeServiceImpl(employeeRepository, hobbyRepository);
+    testee = new EmployeeServiceImpl(employeeRepository, hobbyRepository, avroTransformer, employeeKafkaProducer,
+        kafkaConfigData);
   }
 
   @Test
@@ -92,8 +105,11 @@ class EmployeeServiceImplTest {
   @Test
   void createEmployeeTest() {
     Employee requestEmployee = createMockEmployee();
+    EmployeeAvroModel employeeAvroModel = mock(EmployeeAvroModel.class);
+    doReturn("ID").when(employeeAvroModel).getUuid();
     doReturn(TEST_ID).when(requestEmployee).getUuid();
     doReturn(createMockEmployeeEntity()).when(employeeRepository).save(any(EmployeeEntity.class));
+    doReturn(employeeAvroModel).when(avroTransformer).getAvroModelFromEmployee(any(Employee.class));
     Employee responseEmployee = testee.create(requestEmployee);
     assertEquals(TEST_ID, responseEmployee.getUuid());
     assertEquals(TEST_FULL_NAME, responseEmployee.getFullName());

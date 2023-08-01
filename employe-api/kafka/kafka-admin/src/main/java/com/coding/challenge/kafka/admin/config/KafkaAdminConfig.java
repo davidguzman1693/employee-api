@@ -17,7 +17,6 @@ import java.util.Map;
 
 @EnableRetry
 @Configuration
-@EnableConfigurationProperties(RetryConfigData.class)
 public class KafkaAdminConfig {
 
   private final RetryConfigData retryConfigData;

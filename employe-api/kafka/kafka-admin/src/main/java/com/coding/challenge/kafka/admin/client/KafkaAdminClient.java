@@ -123,12 +123,14 @@ public class KafkaAdminClient {
   //Using webflux for creating a web client.
   private HttpStatus getSchemaRegistryStatus() {
     try {
-      return webClient
+      HttpStatus httpStatus = webClient
           .method(HttpMethod.GET)
           .uri(kafkaConfigData.getSchemaRegistryUrlAlt())
           .exchange()
           .map(ClientResponse::statusCode)
           .block();
+
+      return httpStatus;
     } catch (Exception e) {
       LOG.info("Error when comunicating with schema registry, ", e);
       return HttpStatus.SERVICE_UNAVAILABLE;

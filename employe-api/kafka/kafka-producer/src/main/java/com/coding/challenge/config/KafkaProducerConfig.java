@@ -3,6 +3,7 @@ package com.coding.challenge.config;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+@Configuration
 public class KafkaProducerConfig<K extends Serializable, V extends SpecificRecord>{
   private final KafkaConfigData kafkaConfigData;
   private final KafkaProducerConfigData kafkaProducerConfigData;
