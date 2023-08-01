@@ -14,8 +14,8 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -4075468023114801128L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EmployeeAvroModel\",\"namespace\":\"com.coding.challenge.kafka.avro.model\",\"fields\":[{\"name\":\"uuid\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"email\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"fullName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"birthday\",\"type\":[\"null\",\"long\"],\"logicalType\":[\"null\",\"date\"]},{\"name\":\"hobbies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"HobbyAvroModel\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]}]}");
+  private static final long serialVersionUID = 219171958503981924L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EmployeeAvroModel\",\"namespace\":\"com.coding.challenge.kafka.avro.model\",\"fields\":[{\"name\":\"uuid\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"email\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"fullName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"birthday\",\"type\":[\"null\",\"long\"],\"logicalType\":[\"null\",\"date\"]},{\"name\":\"hobbies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"HobbyAvroModel\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"operation\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"default\":\"CREATE\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static SpecificData MODEL$ = new SpecificData();
@@ -76,6 +76,7 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
    private java.lang.String fullName;
    private java.lang.Long birthday;
    private java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel> hobbies;
+   private java.lang.String operation;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -91,13 +92,15 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
    * @param fullName The new value for fullName
    * @param birthday The new value for birthday
    * @param hobbies The new value for hobbies
+   * @param operation The new value for operation
    */
-  public EmployeeAvroModel(java.lang.String uuid, java.lang.String email, java.lang.String fullName, java.lang.Long birthday, java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel> hobbies) {
+  public EmployeeAvroModel(java.lang.String uuid, java.lang.String email, java.lang.String fullName, java.lang.Long birthday, java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel> hobbies, java.lang.String operation) {
     this.uuid = uuid;
     this.email = email;
     this.fullName = fullName;
     this.birthday = birthday;
     this.hobbies = hobbies;
+    this.operation = operation;
   }
 
   public org.apache.avro.specific.SpecificData getSpecificData() { return MODEL$; }
@@ -110,6 +113,7 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
     case 2: return fullName;
     case 3: return birthday;
     case 4: return hobbies;
+    case 5: return operation;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -123,6 +127,7 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
     case 2: fullName = value$ != null ? value$.toString() : null; break;
     case 3: birthday = (java.lang.Long)value$; break;
     case 4: hobbies = (java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel>)value$; break;
+    case 5: operation = value$ != null ? value$.toString() : null; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
@@ -213,6 +218,23 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
   }
 
   /**
+   * Gets the value of the 'operation' field.
+   * @return The value of the 'operation' field.
+   */
+  public java.lang.String getOperation() {
+    return operation;
+  }
+
+
+  /**
+   * Sets the value of the 'operation' field.
+   * @param value the value to set.
+   */
+  public void setOperation(java.lang.String value) {
+    this.operation = value;
+  }
+
+  /**
    * Creates a new EmployeeAvroModel RecordBuilder.
    * @return A new EmployeeAvroModel RecordBuilder
    */
@@ -258,6 +280,7 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
     private java.lang.String fullName;
     private java.lang.Long birthday;
     private java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel> hobbies;
+    private java.lang.String operation;
 
     /** Creates a new Builder */
     private Builder() {
@@ -290,6 +313,10 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
         this.hobbies = data().deepCopy(fields()[4].schema(), other.hobbies);
         fieldSetFlags()[4] = other.fieldSetFlags()[4];
       }
+      if (isValidValue(fields()[5], other.operation)) {
+        this.operation = data().deepCopy(fields()[5].schema(), other.operation);
+        fieldSetFlags()[5] = other.fieldSetFlags()[5];
+      }
     }
 
     /**
@@ -317,6 +344,10 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
       if (isValidValue(fields()[4], other.hobbies)) {
         this.hobbies = data().deepCopy(fields()[4].schema(), other.hobbies);
         fieldSetFlags()[4] = true;
+      }
+      if (isValidValue(fields()[5], other.operation)) {
+        this.operation = data().deepCopy(fields()[5].schema(), other.operation);
+        fieldSetFlags()[5] = true;
       }
     }
 
@@ -520,6 +551,46 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
       return this;
     }
 
+    /**
+      * Gets the value of the 'operation' field.
+      * @return The value.
+      */
+    public java.lang.String getOperation() {
+      return operation;
+    }
+
+
+    /**
+      * Sets the value of the 'operation' field.
+      * @param value The value of 'operation'.
+      * @return This builder.
+      */
+    public com.coding.challenge.kafka.avro.model.EmployeeAvroModel.Builder setOperation(java.lang.String value) {
+      validate(fields()[5], value);
+      this.operation = value;
+      fieldSetFlags()[5] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'operation' field has been set.
+      * @return True if the 'operation' field has been set, false otherwise.
+      */
+    public boolean hasOperation() {
+      return fieldSetFlags()[5];
+    }
+
+
+    /**
+      * Clears the value of the 'operation' field.
+      * @return This builder.
+      */
+    public com.coding.challenge.kafka.avro.model.EmployeeAvroModel.Builder clearOperation() {
+      operation = null;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public EmployeeAvroModel build() {
@@ -530,6 +601,7 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
         record.fullName = fieldSetFlags()[2] ? this.fullName : (java.lang.String) defaultValue(fields()[2]);
         record.birthday = fieldSetFlags()[3] ? this.birthday : (java.lang.Long) defaultValue(fields()[3]);
         record.hobbies = fieldSetFlags()[4] ? this.hobbies : (java.util.List<com.coding.challenge.kafka.avro.model.HobbyAvroModel>) defaultValue(fields()[4]);
+        record.operation = fieldSetFlags()[5] ? this.operation : (java.lang.String) defaultValue(fields()[5]);
         return record;
       } catch (org.apache.avro.AvroMissingFieldException e) {
         throw e;
@@ -595,6 +667,8 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
         throw new java.util.ConcurrentModificationException("Array-size written was " + size0 + ", but element count was " + actualSize0 + ".");
     }
 
+    out.writeString(this.operation);
+
   }
 
   @Override public void customDecode(org.apache.avro.io.ResolvingDecoder in)
@@ -638,8 +712,10 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
         }
       }
 
+      this.operation = in.readString();
+
     } else {
-      for (int i = 0; i < 5; i++) {
+      for (int i = 0; i < 6; i++) {
         switch (fieldOrder[i].pos()) {
         case 0:
           this.uuid = in.readString();
@@ -685,6 +761,10 @@ public class EmployeeAvroModel extends org.apache.avro.specific.SpecificRecordBa
               }
             }
           }
+          break;
+
+        case 5:
+          this.operation = in.readString();
           break;
 
         default:

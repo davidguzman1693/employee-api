@@ -17,6 +17,7 @@ services:
   schema-registry:
     image: confluentinc/cp-schema-registry:${KAFKA_VERSION}
     hostname: schema-registry
+    restart: on-failure
     depends_on:
       - zookeeper
       - kafka-broker-1

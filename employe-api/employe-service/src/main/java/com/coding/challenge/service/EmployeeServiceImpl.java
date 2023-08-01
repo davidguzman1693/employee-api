@@ -56,8 +56,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   public Employee create(@Nonnull Employee employee) {
     validateEmployee(employee, EmployeeOperation.CREATE);
     EmployeeEntity createdEmployeeEntity = employeeRepository.save(convertToEmployeeEntity(employee));
-
-    Employee createdEmployee = sendEmployeeToKafka(createdEmployeeEntity);
+    Employee createdEmployee = convertToEmployeeModel(createdEmployeeEntity);
+    sendEmployeeToKafka(createdEmployee, EmployeeOperation.CREATE);
 
     return createdEmployee;
   }
@@ -67,6 +67,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   public Employee update(@Nonnull Employee employee) {
     validateExistingEmployee(employee);
     EmployeeEntity updateEmployee = employeeRepository.save(convertToEmployeeEntity(employee));
+    sendEmployeeToKafka(employee, EmployeeOperation.UPDATE);
     return convertToEmployeeModel(updateEmployee);
   }
 
@@ -93,6 +94,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Override
   public void delete(@Nonnull Employee employee) {
     validateExistingEmployee(employee);
+    sendEmployeeToKafka(employee, EmployeeOperation.DELETE);
     employeeRepository.delete(convertToEmployeeEntity(employee));
   }
 
@@ -179,12 +181,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     return false;
   }
 
-  private Employee sendEmployeeToKafka(EmployeeEntity employee) {
-    Employee createdEmployee = convertToEmployeeModel(employee);
-    EmployeeAvroModel createdEmployeeAvroModel = avroTransformer.getAvroModelFromEmployee(createdEmployee);
+  private Employee sendEmployeeToKafka(Employee employee,
+                                       EmployeeOperation operation) {
+    EmployeeAvroModel createdEmployeeAvroModel = avroTransformer.getAvroModelFromEmployee(employee, operation);
     employeeKafkaProducer.send(kafkaConfigData.getTopicName(),
         createdEmployeeAvroModel.getUuid(), createdEmployeeAvroModel);
-    return createdEmployee;
+    return employee;
   }
 
 }

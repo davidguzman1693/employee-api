@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,10 +34,12 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceImplTest {
 
+  private static final String TOPIC_NAME = "topic_name";
   private static final String TEST_ID = "testID";
   private static final String TEST_FULL_NAME = "test";
   private static final String TEST_EMAIL = "test@test.com";
   private static final LocalDate TEST_BIRTHDAY = LocalDate.of(1993, 12, 16);
+  public static final String ID_AVRO = "ID_AVRO";
   @Mock
   private EmployeeRepository employeeRepository;
 
@@ -106,16 +109,19 @@ class EmployeeServiceImplTest {
   void createEmployeeTest() {
     Employee requestEmployee = createMockEmployee();
     EmployeeAvroModel employeeAvroModel = mock(EmployeeAvroModel.class);
-    doReturn("ID").when(employeeAvroModel).getUuid();
+    doReturn(TOPIC_NAME).when(kafkaConfigData).getTopicName();
+    doReturn(ID_AVRO).when(employeeAvroModel).getUuid();
     doReturn(TEST_ID).when(requestEmployee).getUuid();
     doReturn(createMockEmployeeEntity()).when(employeeRepository).save(any(EmployeeEntity.class));
-    doReturn(employeeAvroModel).when(avroTransformer).getAvroModelFromEmployee(any(Employee.class));
+    doReturn(employeeAvroModel).when(avroTransformer)
+        .getAvroModelFromEmployee(any(Employee.class), eq(EmployeeOperation.CREATE));
     Employee responseEmployee = testee.create(requestEmployee);
     assertEquals(TEST_ID, responseEmployee.getUuid());
     assertEquals(TEST_FULL_NAME, responseEmployee.getFullName());
     assertEquals(TEST_EMAIL, responseEmployee.getEmail());
     assertEquals(TEST_BIRTHDAY, responseEmployee.getBirthday());
     assertTrue(responseEmployee.getHobbies().isEmpty());
+    verify(employeeKafkaProducer, times(1)).send(TOPIC_NAME, ID_AVRO, employeeAvroModel);
   }
 
   @Test
@@ -181,7 +187,9 @@ class EmployeeServiceImplTest {
     Employee requestEmployee = createMockEmployee();
     doReturn(TEST_ID).when(requestEmployee).getUuid();
     doReturn(createMockEmployeeEntity()).when(employeeRepository).save(any(EmployeeEntity.class));
-
+    EmployeeAvroModel employeeAvroModel = mock(EmployeeAvroModel.class);
+    doReturn(employeeAvroModel).when(avroTransformer)
+        .getAvroModelFromEmployee(any(Employee.class), eq(EmployeeOperation.UPDATE));
     Employee responseEmployee = testee.update(requestEmployee);
 
     assertEquals(TEST_ID, responseEmployee.getUuid());
@@ -279,9 +287,15 @@ class EmployeeServiceImplTest {
   @Test
   void deleteEmployeeTest() {
     Employee employee = createMockEmployee();
+    doReturn(TOPIC_NAME).when(kafkaConfigData).getTopicName();
+    EmployeeAvroModel employeeAvroModel = mock(EmployeeAvroModel.class);
+    doReturn(ID_AVRO).when(employeeAvroModel).getUuid();
+    doReturn(employeeAvroModel).when(avroTransformer)
+        .getAvroModelFromEmployee(any(Employee.class), eq(EmployeeOperation.DELETE));
     doReturn(TEST_ID).when(employee).getUuid();
     testee.delete(employee);
     verify(employeeRepository, times(1)).delete(any(EmployeeEntity.class));
+    verify(employeeKafkaProducer, times(1)).send(eq(TOPIC_NAME), eq(ID_AVRO), eq(employeeAvroModel));
   }
 
   private Employee createMockEmployee() {

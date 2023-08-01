@@ -15,7 +15,8 @@
     {"name": "email", "type":  "string"},
     {"name": "fullName", "type":  "string"},
     {"name": "birthday", "type":  ["null", "long"], "logicalType": ["null", "date"]},
-    {"name": "hobbies", "type": ["null", {"type" : "array", "items" : "com.coding.challenge.kafka.avro.model.HobbyAvroModel"}]}
+    {"name": "hobbies", "type": ["null", {"type" : "array", "items" : "com.coding.challenge.kafka.avro.model.HobbyAvroModel"}]},
+    {"name": "operation", "type": "string", "default": "CREATE"}
   ]
 }
 ]
