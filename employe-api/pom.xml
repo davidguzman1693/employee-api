@@ -37,6 +37,9 @@
     <spring-retry.version>1.3.0</spring-retry.version>
     <spring-kafka.version>2.6.2</spring-kafka.version>
     <kafka-avro-serializer.version>5.5.1</kafka-avro-serializer.version>
+    <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
+    <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+    <springfox-swagger-ui.version>3.0.0</springfox-swagger-ui.version>
   </properties>
 
   <repositories>
@@ -180,6 +183,25 @@
             <artifactId>swagger-annotations</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <!-- BONUS POINTS -->
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger2</artifactId>
+        <version>${springfox-swagger2.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-boot-starter</artifactId>
+        <version>${springfox-boot-starter.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger-ui</artifactId>
+        <version>${springfox-swagger-ui.version}</version>
       </dependency>
 
     </dependencies>
