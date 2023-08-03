@@ -125,7 +125,7 @@ public class KafkaAdminClient {
     try {
       HttpStatus httpStatus = webClient
           .method(HttpMethod.GET)
-          .uri(kafkaConfigData.getSchemaRegistryUrlAlt())
+          .uri(kafkaConfigData.getSchemaRegistryUrl())
           .exchange()
           .map(ClientResponse::statusCode)
           .block();

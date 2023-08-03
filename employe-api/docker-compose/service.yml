@@ -12,6 +12,7 @@ services:
       - kafka-broker-1
       - kafka-broker-2
       - kafka-broker-3
+      - db
     environment:
       - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms128m -Xmx256m"
       - "LOGGING_LEVEL_COM_CODING_CHALLENGE=info"
@@ -19,5 +20,10 @@ services:
       - "KAFKA-CONFIG_TOPIC-NAME=employee-topic"
       - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
       - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${GLOBAL_DATABASE_NAME}"
+      - "SPRING_DATASOURCE_USERNAME=${GLOBAL_DATABASE_USER}"
+      - "SPRING_DATASOURCE_PASSWORD=${GLOBAL_DATABASE_PASSWORD}"
+      - "SPRING_JPA_HIBERNATE_DDL_AUTO=update"
+      - "SPRING_DATASOURCE_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect"
     networks:
-      - ${GLOBAL_NETWORK:-services}
+      - ${GLOBAL_NETWORK}

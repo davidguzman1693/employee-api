@@ -1,17 +1,17 @@
 server:
   port: 9999
 spring:
-  datasource:
-    url: jdbc:h2:mem:employee
-    driverClassName: org.h2.Driver
-    username: root
-    password: root
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
-  h2:
-    console:
-      enabled: true
+#  datasource:
+#    url: jdbc:h2:mem:employee
+#    driverClassName: org.h2.Driver
+#    username: root
+#    password: root
+#  jpa:
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    show-sql: true
+#  h2:
+#    console:
+#      enabled: true
   session:
     jdbc:
       initialize-schema: always
@@ -27,7 +27,6 @@ retry-config:
 kafka-config:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
   schema-registry-url-key: schema.registry.url
-  schema-registry-url-alt: http://schema-registry
   schema-registry-url: http://localhost:8081
   topic-name: employee-topic
   topic-names-to-create:
