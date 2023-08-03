@@ -5,6 +5,7 @@ import com.coding.challenge.database.entity.EmployeeEntity;
 import com.coding.challenge.database.repository.EmployeeRepository;
 import com.coding.challenge.database.repository.HobbyRepository;
 import com.coding.challenge.exception.EmployeeException;
+import com.coding.challenge.exception.NotFoundEmployeeException;
 import com.coding.challenge.exception.ValidationEmployeeException;
 import com.coding.challenge.kafka.avro.model.EmployeeAvroModel;
 import com.coding.challenge.model.Employee;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -237,64 +239,26 @@ class EmployeeServiceImplTest {
 
 
   @Test
-  void deleteEmployeeNoUUIDTest() {
-    Employee requestEmployee = mock(Employee.class);
-    Exception exception = assertThrows(ValidationEmployeeException.class,
-        () -> testee.delete(requestEmployee));
-    String expected = "Invalid UUID on employee: null";
-    assertEquals(expected, exception.getMessage());
-    verify(employeeRepository, never()).delete(any(EmployeeEntity.class));
-  }
-
-  @Test
-  void deleteEmployeeNoEmailTest() {
-    Employee requestEmployee = mock(Employee.class);
-    doReturn(TEST_ID).when(requestEmployee).getUuid();
-    Exception exception = assertThrows(ValidationEmployeeException.class,
-        () -> testee.delete(requestEmployee));
-    String expected = "Empty/Null email for the employee when creating it.";
-    assertEquals(expected, exception.getMessage());
-    verify(employeeRepository, never()).delete(any(EmployeeEntity.class));
-  }
-
-  @Test
-  void deleteEmployeeNoFullNameTest() {
-    Employee requestEmployee = mock(Employee.class);
-    doReturn(TEST_ID).when(requestEmployee).getUuid();
-    doReturn(TEST_EMAIL).when(requestEmployee).getEmail();
-
-    Exception exception = assertThrows(ValidationEmployeeException.class,
-        () -> testee.delete(requestEmployee));
-    String expected = "Empty/Null full name for the employee when creating it.";
-    assertEquals(expected, exception.getMessage());
-    verify(employeeRepository, never()).delete(any(EmployeeEntity.class));
-  }
-
-  @Test
-  void deleteEmployeeNoBirthdayTest() {
-    Employee requestEmployee = mock(Employee.class);
-    doReturn(TEST_ID).when(requestEmployee).getUuid();
-    doReturn(TEST_EMAIL).when(requestEmployee).getEmail();
-    doReturn(TEST_FULL_NAME).when(requestEmployee).getFullName();
-
-    Exception exception = assertThrows(ValidationEmployeeException.class,
-        () -> testee.delete(requestEmployee));
-    String expected = "Not valid null birthday when creaing the employee";
+  void deleteEmployeeNotFoundEmployeeTest() {
+    doReturn(Optional.empty()).when(employeeRepository).findById(TEST_ID);
+    Exception exception = assertThrows(NotFoundEmployeeException.class,
+        () -> testee.delete(TEST_ID));
+    String expected = "Employee to delete not found";
     assertEquals(expected, exception.getMessage());
     verify(employeeRepository, never()).delete(any(EmployeeEntity.class));
   }
 
   @Test
   void deleteEmployeeTest() {
-    Employee employee = createMockEmployee();
+    EmployeeEntity employee = createMockEmployeeEntity();
     doReturn(TOPIC_NAME).when(kafkaConfigData).getTopicName();
+    doReturn(Optional.of(employee)).when(employeeRepository).findById(TEST_ID);
     EmployeeAvroModel employeeAvroModel = mock(EmployeeAvroModel.class);
     doReturn(ID_AVRO).when(employeeAvroModel).getUuid();
-    doReturn(employeeAvroModel).when(avroTransformer)
-        .getAvroModelFromEmployee(any(Employee.class), eq(EmployeeOperation.DELETE));
-    doReturn(TEST_ID).when(employee).getUuid();
-    testee.delete(employee);
-    verify(employeeRepository, times(1)).delete(any(EmployeeEntity.class));
+    doReturn(employeeAvroModel).when(avroTransformer).getAvroModelFromEmployee(any(Employee.class),
+        eq(EmployeeOperation.DELETE));
+    testee.delete(TEST_ID);
+    verify(employeeRepository, times(1)).delete(employee);
     verify(employeeKafkaProducer, times(1)).send(eq(TOPIC_NAME), eq(ID_AVRO), eq(employeeAvroModel));
   }
 

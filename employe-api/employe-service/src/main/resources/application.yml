@@ -1,13 +1,12 @@
 server:
-  port: 9999
+  port: 8080
 spring:
-#  datasource:
-#    url: jdbc:h2:mem:employee
-#    driverClassName: org.h2.Driver
-#    username: root
-#    password: root
-#  jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
+  datasource:
+    url: jdbc:postgresql://localhost:5433/employees
+    username: postgres
+    password: postgres
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 #    show-sql: true
 #  h2:
 #    console:

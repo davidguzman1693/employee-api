@@ -8,23 +8,36 @@ import com.coding.challenge.model.Hobby;
 import com.coding.challenge.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -62,7 +75,6 @@ class EmployeeControllerTest {
 
   @Test
   void createEmployeeTest() throws Exception {
-    // TODO: String expected = IOUtils.toString(getClass().getResource("created_employee.json"), UTF_8);
     Employee responseEmployee = LIST_EMPLOY_RESPONSE.get(0);
     doReturn(responseEmployee).when(employeeService).create(any());
 
@@ -77,12 +89,15 @@ class EmployeeControllerTest {
         .andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers
             .content()
-            .string("{\"uuid\":\"SOMEUIID\",\"email\":\"test@email.com\",\"fullName\":\"Test Lastname\",\"birthday\":[1996,7,15],\"hobbies\":[]}"));
+            .string("{\"uuid\":\"SOMEUIID\"," +
+                "\"email\":\"test@email.com\"," +
+                "\"fullName\":\"Test Lastname\"," +
+                "\"birthday\":[1996,7,15]," +
+                "\"hobbies\":[]}"));
   }
 
   @Test
   void updateEmployeeTest() throws Exception {
-    // TODO: String expected = IOUtils.toString(getClass().getResource("updated_employee.json"), UTF_8);
     Employee responseEmployee = LIST_EMPLOY_RESPONSE.get(1);
     doReturn(responseEmployee).when(employeeService).update(any());
 
@@ -97,12 +112,15 @@ class EmployeeControllerTest {
         .andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers
             .content()
-            .string("{\"uuid\":\"RANDOMUIID\",\"email\":\"sTest@email.com\",\"fullName\":\"SecondTest Lastname\",\"birthday\":[1993,12,16],\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}"));
+            .string("{\"uuid\":\"RANDOMUIID\"," +
+                "\"email\":\"sTest@email.com\"," +
+                "\"fullName\":\"SecondTest Lastname\"," +
+                "\"birthday\":[1993,12,16]," +
+                "\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}"));
   }
 
   @Test
   void getEmployeeTest() throws Exception {
-    // TODO: String expected = IOUtils.toString(getClass().getResource("retrieved_employee.json"), UTF_8);
     doReturn(EMPLOYEE).when(employeeService).getById("123");
 
     mockMvc.perform(get("/employee/123")
@@ -110,12 +128,15 @@ class EmployeeControllerTest {
         .andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers
             .content()
-            .string("{\"uuid\":null,\"email\":\"test@email.com\",\"fullName\":\"Name Lastname\",\"birthday\":[1993,12,16],\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}"));
+            .string("{\"uuid\":null," +
+                "\"email\":\"test@email.com\"," +
+                "\"fullName\":\"Name Lastname\"," +
+                "\"birthday\":[1993,12,16]," +
+                "\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}"));
   }
 
   @Test
   void retrieveEmployeesTest() throws Exception {
-    // TODO: String expected = IOUtils.toString(getClass().getResource("retrieved_employee.json"), UTF_8);
     doReturn(LIST_EMPLOY_RESPONSE).when(employeeService).getListEmployee();
 
     mockMvc.perform(get("/employee/")
@@ -124,33 +145,34 @@ class EmployeeControllerTest {
         .andExpect(MockMvcResultMatchers
             .content()
             .string("[" +
-                "{\"uuid\":\"SOMEUIID\",\"email\":\"test@email.com\",\"fullName\":\"Test Lastname\",\"birthday\":[1996,7,15],\"hobbies\":[]}," +
-                "{\"uuid\":\"RANDOMUIID\",\"email\":\"sTest@email.com\",\"fullName\":\"SecondTest Lastname\",\"birthday\":[1993,12,16],\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}]"));
+                "{\"uuid\":\"SOMEUIID\"," +
+                "\"email\":\"test@email.com\"," +
+                "\"fullName\":\"Test Lastname\"," +
+                "\"birthday\":[1996,7,15],\"hobbies\":[]}," +
+                "{\"uuid\":\"RANDOMUIID\"," +
+                "\"email\":\"sTest@email.com\"," +
+                "\"fullName\":\"SecondTest Lastname\"," +
+                "\"birthday\":[1993,12,16]," +
+                "\"hobbies\":[{\"id\":null,\"name\":\"Play music\"},{\"id\":null,\"name\":\"HIIT\"}]}]"));
   }
 
   @Test
   void deleteEmployeeTest() throws Exception {
-    mockMvc.perform(delete("/employee")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n" +
-                "    \"email\": \"test@test.com\",\n" +
-                "    \"fullName\": \"First employee\",\n" +
-                "    \"birthday\": \"2023-07-26\",\n" +
-                "    \"hobbies\": []\n" +
-                "}"))
+    mockMvc.perform(delete("/employee/123")
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers
             .content()
             .string(""));
 
-    verify(employeeService, times(1)).delete(any(Employee.class));
+    verify(employeeService, times(1)).delete(eq("123"));
   }
 
   @Test
   void createEmployeeExceptionTest() throws Exception {
     doThrow(ValidationEmployeeException.class).when(employeeService).create(any());
 
-    mockMvc.perform(post("/employee")
+    mockMvc.perform(post("/employee/")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\n" +
                 "    \"email\": \"test@test.com\",\n" +
@@ -184,7 +206,6 @@ class EmployeeControllerTest {
                 "}"))
         .andExpect(status().isInternalServerError());
   }
-
 
 
   private static Employee createTestingEmployee() {

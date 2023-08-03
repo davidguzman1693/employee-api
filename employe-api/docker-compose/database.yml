@@ -4,11 +4,15 @@ services:
     image: 'postgres:13.1-alpine'
     hostname: db
     container_name: db
+    volumes:
+      - data:/var/lib/postgresql/data
     ports:
-      - "5433:5433"
+      - "5433:5432"
     environment:
       - POSTGRES_DB=${GLOBAL_DATABASE_NAME}
       - POSTGRES_USER=${GLOBAL_DATABASE_USER}
       - POSTGRES_PASSWORD=${GLOBAL_DATABASE_PASSWORD}
     networks:
       - ${GLOBAL_NETWORK}
+volumes:
+  data: { }

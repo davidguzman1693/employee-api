@@ -92,10 +92,12 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public void delete(@Nonnull Employee employee) {
-    validateExistingEmployee(employee);
+  public void delete(@Nonnull String idEmployee) {
+    EmployeeEntity employeeEntity = employeeRepository.findById(idEmployee).orElseThrow(
+        () -> new NotFoundEmployeeException("Employee to delete not found"));
+    Employee employee = convertToEmployeeModel(employeeEntity);
     sendEmployeeToKafka(employee, EmployeeOperation.DELETE);
-    employeeRepository.delete(convertToEmployeeEntity(employee));
+    employeeRepository.delete(employeeEntity);
   }
 
   private EmployeeEntity convertToEmployeeEntity(Employee employee) {

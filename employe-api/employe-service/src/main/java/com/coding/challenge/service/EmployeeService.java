@@ -51,8 +51,8 @@ public interface EmployeeService {
   /**
    * Deletes an {@link Employee}.
    *
-   * @param employee {@link Employee}.
+   * @param id of the {@link Employee}.
    */
   @Nonnull
-  void delete(@Nonnull Employee employee);
+  void delete(@Nonnull String id);
 }

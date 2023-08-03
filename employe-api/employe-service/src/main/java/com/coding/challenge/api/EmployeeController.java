@@ -103,11 +103,11 @@ public class EmployeeController {
       @ApiResponse(code = 400, message = "When information of employee to delete is not correct"),
       @ApiResponse(code = 500, message = "When an internal error happened when deleting the employee")
   })
-  @DeleteMapping
-  public ResponseEntity<Void> deleteEmployee(@RequestBody Employee employee) {
-    LOG.info("Deleting the employee {}", employee);
+  @DeleteMapping(value = "/{idEmployee}")
+  public ResponseEntity<Void> deleteEmployee(@PathVariable("idEmployee") String idEmployee) {
+    LOG.info("Deleting the employee with id {}", idEmployee);
 
-    employeeService.delete(employee);
+    employeeService.delete(idEmployee);
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 

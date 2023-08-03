@@ -3,7 +3,7 @@ services:
   employee-api:
     image: ${GROUP_ID}/employee.api:${SERVICE_VERSION}
     ports:
-      - "5005:9999"
+      - "8080:5005"
     volumes:
       - "./docker-logs:/workspace/employee-api/logs"
     user: root
