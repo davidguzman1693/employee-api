@@ -3,7 +3,7 @@ services:
   employee-api:
     image: ${GROUP_ID}/employee.api:${SERVICE_VERSION}
     ports:
-      - "8080:5005"
+      - "5005:8080"
     volumes:
       - "./docker-logs:/workspace/employee-api/logs"
     user: root
@@ -25,5 +25,27 @@ services:
       - "SPRING_DATASOURCE_PASSWORD=${GLOBAL_DATABASE_PASSWORD}"
       - "SPRING_JPA_HIBERNATE_DDL_AUTO=update"
       - "SPRING_DATASOURCE_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect"
+    networks:
+      - ${GLOBAL_NETWORK}
+  employee-consumer:
+    image: ${GROUP_ID}/employee.kafka.consumer:${SERVICE_VERSION}
+    ports:
+      - "5010:5010"
+    volumes:
+      - "./docker-logs:/workspace/employee-consumer/logs"
+    user: root
+    #entrypoint: ["check-config-server-started.sh"]
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+      - employee-api
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_CODING_CHALLENGE=info"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "KAFKA-CONFIG_TOPIC-NAME=employee-topic"
+      - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
+      - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
     networks:
       - ${GLOBAL_NETWORK}

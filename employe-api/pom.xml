@@ -20,6 +20,7 @@
     <module>kafka/kafka-model</module>
     <module>kafka/kafka-common</module>
     <module>kafka/kafka-producer</module>
+    <module>kafka/kafka-consumer</module>
   </modules>
 
   <properties>
@@ -77,6 +78,12 @@
       <dependency>
         <groupId>com.coding.challenge</groupId>
         <artifactId>kafka-producer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.coding.challenge</groupId>
+        <artifactId>kafka-consumer</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -205,6 +212,11 @@
         <version>${postgresql.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-aop</artifactId>
+        <version>${spring-boot.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

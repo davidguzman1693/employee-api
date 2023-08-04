@@ -1,6 +1,6 @@
-drop table if exists EMPLOYEE;
-drop table if exists EMPLOYEE_HOBBY;
-drop table if exists HOBBY;
+-- drop table if exists EMPLOYEE;
+-- drop table if exists EMPLOYEE_HOBBY;
+-- drop table if exists HOBBY;
 
 create table EMPLOYEE
 (
